@@ -9,7 +9,8 @@
   #fluxograma-wp .fh .hint{display:inline-flex;gap:8px;margin-top:12px;font-family:monospace;font-size:12px;color:#4a5245;}
   #fluxograma-wp .fh .hint .dot{width:8px;height:8px;border-radius:50%;background:#2D6A4F;box-shadow:0 0 0 3px rgba(45,106,79,.2);}
   #fluxograma-wp .board{position:relative;overflow-x:auto;padding:10px 0 30px;}
-  #fluxograma-wp .track{position:relative;display:flex;gap:39px;width:max-content;min-width:100%;padding-right:100px;}
+  #fluxograma-wp .track{position:relative;display:flex;flex-direction:column;gap:14px;width:max-content;min-width:100%;padding-right:100px;padding-bottom:20px;}
+  #fluxograma-wp .track .fases-row{display:flex;gap:39px;}
   #fluxograma-wp .semester{width:210px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;}
   #fluxograma-wp .semester-tab{font-family:monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:baseline;gap:6px;padding-bottom:8px;border-bottom:1.5px solid #1e261b;}
   #fluxograma-wp .semester-tab .num{font-weight:700;font-size:20px;color:#2D6A4F;}
@@ -27,12 +28,24 @@
   #fluxograma-wp .card.coreq .code{color:#6C4A9C;}
   #fluxograma-wp .card.coreq .name{color:#3D2A5C;}
   #fluxograma-wp .card.dim{opacity:.3;}
+  #fluxograma-wp .card.optativa{background:#FFF8E7;border-color:#D4A017;}
+  #fluxograma-wp .card.optativa .code{color:#D4A017;}
+  #fluxograma-wp .card.optativa .name{color:#8B6914;}
+  #fluxograma-wp .card.complementar{background:#E8F0FE;border-color:#4A7CB5;}
+  #fluxograma-wp .card.complementar .code{color:#4A7CB5;}
+  #fluxograma-wp .card.complementar .name{color:#2C4A7C;}
+  #fluxograma-wp .card.optativa.dim, #fluxograma-wp .card.complementar.dim{opacity:.3;}
+  #fluxograma-wp .card.optativa.selected, #fluxograma-wp .card.complementar.selected{border-color:#6C4A9C;background:#D8EDE6;}
   #fluxograma-wp svg.edges{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;}
   #fluxograma-wp svg.edges path{fill:none;stroke:#b5aa90;stroke-width:0.8;transition:stroke .25s ease,stroke-width .25s ease,opacity .25s ease;}
   #fluxograma-wp svg.edges path.highlight{stroke:#2D6A4F;stroke-width:2.2;}
   #fluxograma-wp svg.edges path.coreq-line{stroke:#b5aa90;stroke-width:0.8;}
   #fluxograma-wp svg.edges path.coreq-highlight{stroke:#6C4A9C;stroke-width:2.2;}
   #fluxograma-wp svg.edges path.dim{opacity:.15;}
+  #fluxograma-wp .linha-especial{display:flex;gap:39px;width:100%;padding-top:14px;}
+  #fluxograma-wp .linha-especial .card{flex:0 0 auto;width:210px;}
+  #fluxograma-wp .linha-especial .card.optativa{background:#FFF8E7;border-color:#D4A017;}
+  #fluxograma-wp .linha-especial .card.complementar{background:#E8F0FE;border-color:#4A7CB5;}
   #fluxograma-wp .panel{position:fixed;top:0;right:0;height:100%;width:420px;background:#faf7ef;border-left:2px solid #1e261b;transform:translateX(100%);transition:transform .3s ease;z-index:99999;display:flex;flex-direction:column;padding:28px 28px 24px;overflow-y:auto;}
   #fluxograma-wp .panel.open{transform:translateX(0);}
   #fluxograma-wp .panel .close{align-self:flex-end;background:none;border:1.3px solid #1e261b;color:#1e261b;font-family:monospace;font-size:11px;letter-spacing:.06em;padding:5px 10px;border-radius:2px;cursor:pointer;margin-bottom:18px;}
@@ -61,20 +74,29 @@
   #fluxograma-wp .panel.open{transform:translateY(0);}
   #fluxograma-wp .semester{width:175px;gap:12px;}
   #fluxograma-wp .card .name{font-size:12px;}
-  #fluxograma-wp .track{gap:26px;}
+  #fluxograma-wp .track .fases-row{gap:26px;}
+  #fluxograma-wp .linha-especial{gap:26px;}
+  #fluxograma-wp .linha-especial .card{width:175px;}
 }
 </style>
 
 <div class="fh">
   <div class="eb">Fluxograma curricular</div>
   <h2>Odontologia UFSC · 290 créditos</h2>
-  <p>Clique em qualquer disciplina para ver seus detalhes. <span style="color:#2D6A4F;">Verde</span> = pré-requisitos | <span style="color:#6C4A9C;">Roxo</span> = correquisitos</p>
+  <p>Clique em qualquer disciplina para ver seus detalhes. <span style="color:#2D6A4F;">Verde</span> = pré-requisitos | <span style="color:#6C4A9C;">Roxo</span> = correquisitos | <span style="color:#D4A017;">Amarelo</span> = optativas | <span style="color:#4A7CB5;">Azul</span> = complementares</p>
   <div class="hint"><span class="dot"></span> clique em um quadro para expandir</div>
 </div>
 
 <div class="board">
   <div class="track" id="track-wp">
+    <div class="fases-row" id="fases-row-wp">
+      <!-- As fases serão inseridas aqui via JavaScript -->
+    </div>
     <svg class="edges" id="edges-wp"></svg>
+    <!-- Linha de Optativas -->
+    <div class="linha-especial" id="linha-optativas-wp"></div>
+    <!-- Linha de Complementares -->
+    <div class="linha-especial" id="linha-complementares-wp"></div>
   </div>
 </div>
 
@@ -160,7 +182,7 @@ const coursesOdonto = [
 
   // === FASE 3 ===
   { id: "ODT1014", period: 3, name: "Biomateriais Odontológicos I", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
-    prereq: ["MOR1008", "PTL1010", "MOR1011"],
+    prereq: ["MOR1008", "PTL1010", "MOR1011", "BQA1004"],
     desc: "Introdução ao estudo dos materiais odontológicos. Propriedades dos materiais odontológicos. Biocompatibilidade. Materiais para prevenção. Cimentos de ionômero de vidro. Adesão e sistemas adesivos. Materiais restauradores diretos.",
     objGeral: "Conhecer as propriedades dos materiais odontológicos.",
     objEsp: ["Identificar e manipular materiais odontológicos.", "Compreender as propriedades físicas, mecânicas e biológicas."],
@@ -445,7 +467,9 @@ const coursesOdonto = [
 // ============================================================
 // FUNÇÕES DO FLUXOGRAMA
 // ============================================================
-const trackEl = document.getElementById('track-wp');
+const fasesRow = document.getElementById('fases-row-wp');
+const linhaOptativas = document.getElementById('linha-optativas-wp');
+const linhaComplementares = document.getElementById('linha-complementares-wp');
 const svgEl = document.getElementById('edges-wp');
 const panelEl = document.getElementById('panel-wp');
 const panelBodyEl = document.getElementById('panelBody-wp');
@@ -465,8 +489,38 @@ for (let p = 1; p <= 10; p++) {
     card.addEventListener('click', () => selectCourse(c.id));
     col.appendChild(card);
   });
-  trackEl.appendChild(col);
+  fasesRow.appendChild(col);
 }
+
+// Cria os cards especiais (Optativas e Complementares)
+// Optativas - 1 card ocupando toda a largura
+const cardOptativa = document.createElement('div');
+cardOptativa.className = 'card optativa';
+cardOptativa.id = 'card-wp-OPTATIVA';
+cardOptativa.style.width = '100%';
+cardOptativa.style.textAlign = 'center';
+cardOptativa.innerHTML = '<div class="code">Optativas</div><div class="name">Disciplinas optativas</div><div class="credits">4 cr. (total)</div>';
+cardOptativa.addEventListener('click', () => selectCourse('OPTATIVA'));
+linhaOptativas.appendChild(cardOptativa);
+
+// Complementares - 1 card ocupando toda a largura
+const cardComplementar = document.createElement('div');
+cardComplementar.className = 'card complementar';
+cardComplementar.id = 'card-wp-COMPLEMENTAR';
+cardComplementar.style.width = '100%';
+cardComplementar.style.textAlign = 'center';
+cardComplementar.innerHTML = '<div class="code">Complementares</div><div class="name">Atividades complementares</div><div class="credits">2 cr. (total)</div>';
+cardComplementar.addEventListener('click', () => selectCourse('COMPLEMENTAR'));
+linhaComplementares.appendChild(cardComplementar);
+
+// Adiciona os cards especiais ao array de courses para que sejam encontrados pelo selectCourse
+const especialCourses = [
+  { id: 'OPTATIVA', period: '1-10', name: 'Disciplinas optativas', total: 4, teorico: 0, lab: 0, clinico: 0, carater: 'Optativa', dept: 'ODT',
+    desc: 'Disciplinas de livre escolha do estudante, conforme interesse de formação. A carga horária total de 4 créditos deve ser cumprida ao longo do curso, podendo ser distribuída em diferentes semestres.', objGeral: '', objEsp: [], biblioObrig: '', biblioComp: '', equiv: '', tipo: 'optativa' },
+  { id: 'COMPLEMENTAR', period: '1-10', name: 'Atividades complementares', total: 2, teorico: 0, lab: 0, clinico: 0, carater: 'Complementar', dept: 'ODT',
+    desc: 'Atividades complementares que incluem eventos, monitoria, pesquisa ou extensão. A carga horária total de 2 créditos deve ser cumprida ao longo do curso.', objGeral: '', objEsp: [], biblioObrig: '', biblioComp: '', equiv: '', tipo: 'complementar' }
+];
+coursesOdonto.push(...especialCourses);
 
 // Constrói arestas (pré-requisitos e correquisitos)
 const edgesList = [];
@@ -484,6 +538,7 @@ coursesOdonto.forEach(c => {
 });
 
 function drawEdges() {
+  const trackEl = document.getElementById('track-wp');
   const rect = trackEl.getBoundingClientRect();
   svgEl.setAttribute('width', trackEl.scrollWidth);
   svgEl.setAttribute('height', trackEl.scrollHeight);
@@ -629,7 +684,7 @@ function selectCourse(id) {
   const equiv = course.equiv || '<span class="empty">Não informado.</span>';
 
   panelBodyEl.innerHTML = `
-    <div class="p-code">${course.id} · ${course.period}º Fase</div>
+    <div class="p-code">${course.id || 'Sem código'} · ${course.period || '1-10'}º Fase</div>
     <div class="p-name">${course.name}</div>
     <div class="p-credits">${total} créditos totais</div>
     ${credDetail}
