@@ -1,0 +1,669 @@
+<div id="fluxograma-wp" style="background:#f5f2eb;padding:20px;border-radius:8px;max-width:100%;overflow-x:auto;font-family:Arial,sans-serif;">
+
+<style>
+  #fluxograma-wp *{box-sizing:border-box;margin:0;padding:0;}
+  #fluxograma-wp .fh{padding:20px 0 15px;border-bottom:2px solid #1e261b;margin-bottom:20px;}
+  #fluxograma-wp .fh .eb{font-family:monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#2D6A4F;margin-bottom:6px;}
+  #fluxograma-wp .fh h2{font-weight:700;font-size:24px;margin:0 0 6px;color:#1e261b;}
+  #fluxograma-wp .fh p{color:#4a5245;font-size:14px;line-height:1.5;}
+  #fluxograma-wp .fh .hint{display:inline-flex;gap:8px;margin-top:12px;font-family:monospace;font-size:12px;color:#4a5245;}
+  #fluxograma-wp .fh .hint .dot{width:8px;height:8px;border-radius:50%;background:#2D6A4F;box-shadow:0 0 0 3px rgba(45,106,79,.2);}
+  #fluxograma-wp .board{position:relative;overflow-x:auto;padding:10px 0 30px;}
+  #fluxograma-wp .track{position:relative;display:flex;gap:39px;width:max-content;min-width:100%;padding-right:100px;}
+  #fluxograma-wp .semester{width:210px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;}
+  #fluxograma-wp .semester-tab{font-family:monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:baseline;gap:6px;padding-bottom:8px;border-bottom:1.5px solid #1e261b;}
+  #fluxograma-wp .semester-tab .num{font-weight:700;font-size:20px;color:#2D6A4F;}
+  #fluxograma-wp .card{position:relative;z-index:2;background:#faf7ef;border:1.3px solid #1e261b;border-radius:3px;padding:10px 12px;cursor:pointer;box-shadow:2px 2px 0 rgba(30,38,27,.06);transition:transform .16s ease,box-shadow .16s ease,opacity .25s ease,border-color .2s ease;}
+  #fluxograma-wp .card:hover{transform:translateY(-2px);box-shadow:3px 4px 0 rgba(30,38,27,.12);}
+  #fluxograma-wp .card .code{font-family:monospace;font-size:10.5px;color:#4a5245;letter-spacing:.04em;}
+  #fluxograma-wp .card .name{font-weight:600;font-size:14px;line-height:1.28;margin:3px 0 6px;color:#1e261b;}
+  #fluxograma-wp .card .credits{display:inline-block;font-family:monospace;font-size:10px;color:#3d6b54;border:1px solid #3d6b54;border-radius:2px;padding:1px 6px;}
+  #fluxograma-wp .card.selected{border-color:#6C4A9C;background:#D8EDE6;box-shadow:0 0 0 3px rgba(108,74,156,.2),3px 4px 0 rgba(30,38,27,.1);}
+  #fluxograma-wp .card.selected .name{color:#1B4332;}
+  #fluxograma-wp .card.prereq{border-color:#2D6A4F;background:#E8F5F0;}
+  #fluxograma-wp .card.prereq .code{color:#2D6A4F;}
+  #fluxograma-wp .card.prereq .name{color:#1B4332;}
+  #fluxograma-wp .card.coreq{border-color:#6C4A9C;background:#F5EEFA;}
+  #fluxograma-wp .card.coreq .code{color:#6C4A9C;}
+  #fluxograma-wp .card.coreq .name{color:#3D2A5C;}
+  #fluxograma-wp .card.dim{opacity:.3;}
+  #fluxograma-wp svg.edges{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;}
+  #fluxograma-wp svg.edges path{fill:none;stroke:#b5aa90;stroke-width:0.8;transition:stroke .25s ease,stroke-width .25s ease,opacity .25s ease;}
+  #fluxograma-wp svg.edges path.highlight{stroke:#2D6A4F;stroke-width:2.2;}
+  #fluxograma-wp svg.edges path.coreq-line{stroke:#b5aa90;stroke-width:0.8;}
+  #fluxograma-wp svg.edges path.coreq-highlight{stroke:#6C4A9C;stroke-width:2.2;}
+  #fluxograma-wp svg.edges path.dim{opacity:.15;}
+  #fluxograma-wp .panel{position:fixed;top:0;right:0;height:100%;width:420px;background:#faf7ef;border-left:2px solid #1e261b;transform:translateX(100%);transition:transform .3s ease;z-index:99999;display:flex;flex-direction:column;padding:28px 28px 24px;overflow-y:auto;}
+  #fluxograma-wp .panel.open{transform:translateX(0);}
+  #fluxograma-wp .panel .close{align-self:flex-end;background:none;border:1.3px solid #1e261b;color:#1e261b;font-family:monospace;font-size:11px;letter-spacing:.06em;padding:5px 10px;border-radius:2px;cursor:pointer;margin-bottom:18px;}
+  #fluxograma-wp .panel .close:hover{background:#1e261b;color:#faf7ef;}
+  #fluxograma-wp .panel .p-code{font-family:monospace;font-size:11px;color:#2D6A4F;letter-spacing:.06em;}
+  #fluxograma-wp .panel .p-name{font-weight:700;font-size:22px;line-height:1.2;margin:4px 0 8px;color:#1e261b;}
+  #fluxograma-wp .panel .p-credits{font-family:monospace;font-size:11px;color:#2D6A4F;border:1px solid #2D6A4F;border-radius:2px;padding:2px 8px;display:inline-block;margin-bottom:6px;}
+  #fluxograma-wp .panel .p-credits-detail{font-size:13px;color:#4a5245;margin-bottom:14px;line-height:1.5;}
+  #fluxograma-wp .panel .p-meta{font-size:13px;color:#4a5245;margin-bottom:14px;line-height:1.8;}
+  #fluxograma-wp .panel .p-meta strong{color:#1e261b;}
+  #fluxograma-wp .panel .p-desc{font-size:14px;line-height:1.6;color:#1e261b;margin-bottom:16px;}
+  #fluxograma-wp .panel h3{font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#4a5245;border-bottom:1px solid #d5cdb8;padding-bottom:5px;margin:14px 0 8px;}
+  #fluxograma-wp .panel .block{font-size:13.5px;line-height:1.6;margin-bottom:12px;color:#1e261b;}
+  #fluxograma-wp .panel .block ul{list-style:none;padding:0;margin:4px 0 0;}
+  #fluxograma-wp .panel .block ul li{padding:3px 0 3px 12px;border-bottom:1px dashed #e0d8c6;position:relative;cursor:pointer;}
+  #fluxograma-wp .panel .block ul li:hover{color:#2D6A4F;}
+  #fluxograma-wp .panel .block ul li::before{content:"•";position:absolute;left:0;color:#2D6A4F;}
+  #fluxograma-wp .panel .block ul li.coreq-item::before{color:#6C4A9C;}
+  #fluxograma-wp .panel .block .empty{color:#4a5245;font-style:italic;font-size:13px;}
+  #fluxograma-wp .panel .placeholder{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;color:#4a5245;font-family:monospace;font-size:12px;line-height:1.6;padding:0 10px;}
+  #fluxograma-wp .overlay{position:fixed;inset:0;background:rgba(30,38,27,.15);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:99998;}
+  #fluxograma-wp .overlay.open{opacity:1;pointer-events:auto;}
+  .tag-prereq{font-family:monospace;font-size:10px;color:#2D6A4F;background:#E8F5F0;padding:1px 6px;border-radius:2px;}
+  .tag-coreq{font-family:monospace;font-size:10px;color:#6C4A9C;background:#F5EEFA;padding:1px 6px;border-radius:2px;}
+  @media(max-width:760px){#fluxograma-wp .panel{width:100%;top:auto;bottom:0;right:0;height:auto;max-height:75vh;border-left:none;border-top:2px solid #1e261b;transform:translateY(100%);border-radius:10px 10px 0 0;padding:20px 20px 24px;}
+  #fluxograma-wp .panel.open{transform:translateY(0);}
+  #fluxograma-wp .semester{width:175px;gap:12px;}
+  #fluxograma-wp .card .name{font-size:12px;}
+  #fluxograma-wp .track{gap:26px;}
+}
+</style>
+
+<div class="fh">
+  <div class="eb">Fluxograma curricular</div>
+  <h2>Odontologia UFSC · 290 créditos</h2>
+  <p>Clique em qualquer disciplina para ver seus detalhes. <span style="color:#2D6A4F;">Verde</span> = pré-requisitos | <span style="color:#6C4A9C;">Roxo</span> = correquisitos</p>
+  <div class="hint"><span class="dot"></span> clique em um quadro para expandir</div>
+</div>
+
+<div class="board">
+  <div class="track" id="track-wp">
+    <svg class="edges" id="edges-wp"></svg>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-wp"></div>
+<aside class="panel" id="panel-wp">
+  <button class="close" id="closeBtn-wp">FECHAR ✕</button>
+  <div id="panelBody-wp"><div class="placeholder">Selecione uma disciplina.</div></div>
+</aside>
+
+<script>
+// ============================================================
+// DADOS COMPLETOS DA ODONTOLOGIA - Planilha 03/08/2026
+// ============================================================
+const coursesOdonto = [
+  // === FASE 1 ===
+  { id: "MOR1001", period: 1, name: "Anatomia Humana", total: 3, teorico: 2, lab: 1, clinico: 0, carater: "Obrigatória", dept: "MOR",
+    desc: "Introdução ao estudo da anatomia. Sistema Esquelético. Sistema Articular. Sistema Muscular. Sistema Nervoso. Sistema Circulatório. Sistema Respiratório. Sistema Digestório. Sistema Urinário. Sistema Genital Masculino. Sistema Genital Feminino. Sistema Endócrino.",
+    objGeral: "Conhecer a morfologia e a estrutura dos diversos órgãos que compõem os sistemas do corpo humano.",
+    objEsp: ["Identificar e descrever estruturas anatômicas e órgãos que compõem os diferentes sistemas do corpo humano, utilizando a Terminologia Anatômica Oficial.", "Reconhecer as bases morfológicas dos sistemas do corpo humano para a compreensão dos principais processos funcionais que ocorrem nesses."],
+    biblioObrig: "D'ANGELO, J. G.; FATTINI, C.A. Anatomia humana básica. 2. ed. Rio de Janeiro; São Paulo: Atheneu, 2004.\nDUARTE, H.E. Anatomia Humana. 1. ed. Florianópolis (SC): Universidade Federal de Santa Catarina, 2014.\nGABRIELLI, C.; VARGAS, J. C. Anatomia sistémica: uma abordagem direta para o estudante. 4. ed. Florianópolis: Ed. da UFSC, c2012.",
+    biblioComp: "DANGELO, J.G.; FATTINI, C.A. Anatomia humana sistêmica e segmentar. 2. ed. Rio de Janeiro: Atheneu, 1988.\nNETTER, F. H. Atlas de anatomia humana. 4ª ed. Porto Alegre: Artmed, 2008.\nSOBOTTA, J; PUTZ, R; PABST, R. Atlas de anatomia humana. 21. ed. Rio de Janeiro: Guanabara Koogan, c2000.\nTORTORA, Gerard J.; DERRICKSON, Bryan. Princípios de anatomia e fisiologia. 12. ed. Rio de Janeiro: Guanabara Koogan, c2010.",
+    equiv: "MOR7002 OU MOR5231 OU MOR5232 OU MOR5210" },
+  { id: "ODT1002", period: 1, name: "Bioética", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    desc: "História e fundamentos da bioética. Modelos e correntes bioéticas. Bioética, direitos humanos e cidadania. Questões éticas no cuidado à saúde. Deliberação moral e tomada de decisão ética.",
+    objGeral: "Desenvolver competências para a análise e deliberação de problemas éticos no cuidado em saúde, favorecendo a autonomia moral e promovendo a formação de profissionais humanistas, críticos, eticamente competentes e socialmente comprometidos.",
+    objEsp: ["Compreender a origem, a evolução histórica e os fundamentos conceituais da bioética.", "Analisar diferentes modelos e correntes bioéticas.", "Relacionar bioética, direitos humanos e cidadania.", "Identificar e problematizar questões éticas presentes no cuidado à saúde.", "Aplicar método de deliberação moral na tomada de decisão."],
+    biblioObrig: "DINIZ, Debora; GUILHEM, Dirce. O que é bioética. São Paulo: Brasiliense, 2002.\nFINKLER, Mirelle. A deliberação moral: método para a Bioética da Responsabilidade. Porto Alegre: Moriá, 2019.\nUNESCO. Declaração Universal sobre Bioética e Direitos Humanos. Brasília: UNESCO; Ministério da Saúde, 2005.",
+    biblioComp: "BRASIL. Lei nº 15.378, de 6 de abril de 2026.\nFINKLER, Mirelle et al. Boas práticas para o uso de mídias sociais. UFSC; ABENO, 2025.\nGARRAFA, Volnei et al. Críticas ao principialismo em bioética. Saúde e Sociedade, 2016.\nHELLMANN, Fernando et al. Bioética e saúde coletiva. Florianópolis: DIOESC, 2012.\nREGO, Sergio; PALÁCIOS, Marisa; SIQUEIRA-BATISTA, Rodrigo. Bioética para profissionais da saúde. Fiocruz, 2009.",
+    equiv: "ODT7017" },
+  { id: "BEG1003", period: 1, name: "Biologia Celular", total: 2, teorico: 1, lab: 1, clinico: 0, carater: "Obrigatória", dept: "BEG",
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "BEG7001" },
+  { id: "BQA1004", period: 1, name: "Bioquímica", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "BQA",
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "BQA7006" },
+  { id: "BEG1005", period: 1, name: "Genética Humana", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "BEG",
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "BEG7200 OU BEG7201" },
+  { id: "MOR1006", period: 1, name: "Histologia Geral", total: 3, teorico: 2, lab: 1, clinico: 0, carater: "Obrigatória", dept: "MOR",
+    desc: "Noções de técnicas histológicas e microscopia. Tecido epitelial. Tecido conjuntivo. Tecido ósseo e cartilaginoso. Tecido muscular. Tecido nervoso. Sangue. Sistema circulatório. Sistema linfático. Sistema digestório e glândulas anexas. Sistema respiratório. Sistema urinário. Sistema endócrino. Sistema genital masculino e feminino.",
+    objGeral: "Compreender a organização microscópica dos tecidos básicos e dos sistemas orgânicos.",
+    objEsp: ["Reconhecer os princípios básicos das técnicas histológicas e da microscopia óptica.", "Identificar os tecidos básicos do organismo humano.", "Relacionar a organização microscópica dos tecidos à anatomia e à fisiologia.", "Reconhecer histologicamente os sistemas circulatório, linfático, digestório, respiratório, urinário, endócrino, genital masculino e genital feminino.", "Interpretar preparações histológicas."],
+    biblioObrig: "JUNQUEIRA, Luiz Carlos Uchoa; CARNEIRO, José. Histologia básica. 14. ed. Guanabara Koogan, 2023.\nROSS, Michael H.; PAWLINA, Wojciech. Histologia: texto e atlas. 8. ed. Guanabara Koogan, 2021.\nKIERSZENBAUM, Abraham L.; TRES, Laura L. Histologia e biologia celular. 5. ed. Guanabara Koogan, 2021.",
+    biblioComp: "GARTNER, Leslie P.; HIATT, James L. Atlas colorido de histologia. 6. ed. Guanabara Koogan, 2014.\nOVALLE, William K.; NAHIRNEY, Patrick C. Bases da histologia. 2. ed. Guanabara Koogan, 2020.\nFEHRENBACH, Margaret J.; POPOWICS, Tracy. Anatomia, histologia e embriologia dos dentes. 5. ed. Guanabara Koogan, 2022.",
+    equiv: "MOR7101 OU MOR7003 OU MOR5118" },
+  { id: "SPB1007", period: 1, name: "Sociologia da Saúde", total: 4, teorico: 1, lab: 3, clinico: 0, carater: "Obrigatória", dept: "SPB",
+    desc: "Fundamentos da teoria sociológica aplicados à saúde. Sociedade, indivíduo, cultura e processos de socialização. Relações entre Estado, mercado, sociedade e políticas públicas de saúde. Desigualdades sociais, determinantes sociais da saúde e processo saúde-doença. Processo saúde-doença bucal na sociedade brasileira e clínica odontológica como prática social.",
+    objGeral: "Compreender a saúde e a saúde bucal como fenômenos sociais, históricos, culturais, políticos e econômicos.",
+    objEsp: ["Compreender os fundamentos da teoria sociológica.", "Analisar a saúde e a saúde bucal como fenômenos sociais.", "Identificar os condicionantes históricos, sociais e institucionais da saúde pública.", "Analisar os determinantes sociais da saúde bucal.", "Refletir criticamente sobre a prática odontológica."],
+    biblioObrig: "", biblioComp: "", equiv: "SPO7110" },
+
+  // === FASE 2 ===
+  { id: "MOR1008", period: 2, name: "Anatomia de Cabeça e Pescoço", total: 5, teorico: 3, lab: 2, clinico: 0, carater: "Obrigatória", dept: "MOR",
+    prereq: ["MOR1001", "MOR1006"],
+    desc: "Estudo da cabeça óssea. Articulações da cabeça. Músculos da cabeça e do pescoço. Nervos. Vascularização. Seios da face. Boca. Glândulas salivares. Dentes permanentes e decíduos.",
+    objGeral: "Conhecer as estruturas anatômicas regionais da cabeça e do pescoço.",
+    objEsp: ["Identificar e descrever estruturas anatômicas da cabeça e pescoço.", "Reconhecer e identificar os dentes permanentes e decíduos.", "Correlacionar as bases morfofuncionais com a prática clínica."],
+    biblioObrig: "MADEIRA, M. C. Anatomia da face. 6 ed. Sarvier, 2008.\nTEIXEIRA, L.M.S. Anatomia aplicada à Odontologia. 3. Ed. GEN, 2020.",
+    biblioComp: "SCHÜNKE, M. Prometheus, atlas de anatomia. Guanabara Koogan, 2007.\nVIEIRA, G. F. Atlas de anatomia de dentes permanentes. Santos, 2006.",
+    equiv: "MOR7002 EH MOR7004" },
+  { id: "BEG1009", period: 2, name: "Embriologia", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "BEG",
+    prereq: ["MOR1001", "MOR1006", "BEG1003"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "BEG7101" },
+  { id: "PTL1010", period: 2, name: "Fisiopatologia", total: 6, teorico: 4, lab: 2, clinico: 0, carater: "Obrigatória", dept: "PTL",
+    prereq: ["MOR1001", "MOR1006"],
+    desc: "Introdução à fisiologia humana. Homeostase. Fisiologia cardiovascular, pulmonar, renal, hepática, hormonal e fisiologia da dor. Células sanguíneas, formação óssea e hemostasia. Generalidades sobre Patologia. Manifestações celulares à agressão. Processo inflamatório.",
+    objGeral: "Compreender o funcionamento dos diferentes órgãos e sistemas do corpo humano.",
+    objEsp: ["Descrever os aspectos funcionais dos sistemas fisiológicos.", "Compreender os fundamentos básicos das doenças.", "Explicar as relações entre os sistemas fisiológicos e as alterações patológicas."],
+    biblioObrig: "HALL, J. E. Guyton & Hall: Tratado de Fisiologia Médica. 12ª ed. Elsevier, 2011.\nBOGLIOLO, Luigi. Patologia geral. 5. ed. Guanabara Koogan, 2013.",
+    biblioComp: "LITTLE, James W. Manejo odontológico do paciente clinicamente comprometido. 7. ed. Elsevier, 2009.\nROBBINS, Stanley L. Patologia Robbins. 8. ed. Elsevier, 2010.",
+    equiv: "CFS7101" },
+  { id: "MOR1011", period: 2, name: "Histologia Buco-dental", total: 3, teorico: 2, lab: 1, clinico: 0, carater: "Obrigatória", dept: "MOR",
+    prereq: ["MOR1006", "MOR1001"],
+    desc: "Embriologia da Face. Odontogênese. Dentinogênese. Amelogênese. Esmalte. Dentina. Polpa dental. Cemento dental. Ligamento Periodontal. Osso alveolar. Mucosa oral. Glândulas salivares.",
+    objGeral: "Compreender os processos morfogênicos da face e dos dentes.",
+    objEsp: ["Reconhecer os processos morfogênicos do crânio, face e dentes.", "Reconhecer as características morfológicas dos tecidos dentários.", "Reconhecer os movimentos dentários fisiológicos."],
+    biblioObrig: "NANCI, A. Histologia oral. 7. ed. Elsevier, 2008.\nARANA, V. Histologia e Embriologia Oral. 2a ed. Guanabara Koogan, 2004.",
+    biblioComp: "JUNQUEIRA, L. C. Histologia Básica. 14° ed. Guanabara Koogan, 2023.\nROSS, M.H. Histologia – Texto e Atlas. 8° ed. Medica Panamericana, 2021.",
+    equiv: "MOR7102" },
+  { id: "MIP1012", period: 2, name: "Imunomicrobiologia", total: 4, teorico: 3, lab: 1, clinico: 0, carater: "Obrigatória", dept: "MIP",
+    prereq: ["MOR1001", "BEG1003", "MOR1006", "BQA1004"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "MIP7103 EH MIP7004" },
+  { id: "SPB1013", period: 2, name: "Políticas Públicas de Saúde", total: 2, teorico: 1, lab: 1, clinico: 0, carater: "Obrigatória", dept: "SPB",
+    prereq: ["SPB1007"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "SPB7111" },
+
+  // === FASE 3 ===
+  { id: "ODT1014", period: 3, name: "Biomateriais Odontológicos I", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["MOR1008", "PTL1010", "MOR1011"],
+    desc: "Introdução ao estudo dos materiais odontológicos. Propriedades dos materiais odontológicos. Biocompatibilidade. Materiais para prevenção. Cimentos de ionômero de vidro. Adesão e sistemas adesivos. Materiais restauradores diretos.",
+    objGeral: "Conhecer as propriedades dos materiais odontológicos.",
+    objEsp: ["Identificar e manipular materiais odontológicos.", "Compreender as propriedades físicas, mecânicas e biológicas."],
+    biblioObrig: "SHEN, Chiayi. Phillips materiais dentários. 13. ed. Guanabara Koogan, 2023.\nANUSAVICE, Kenneth J. Phillips materiais dentários. 12.ed. Elsevier, 2013.",
+    biblioComp: "REIS, Alessandra. Materiais dentários diretos. 2. ed. Guanabara Koogan, 2021.\nBARATIERI, LUIS N. Odontologia Restauradora. 2. ed. Santos, 2024.",
+    equiv: "ODT7101" },
+  { id: "ODT1015", period: 3, name: "Biossegurança e Ergonomia", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["MIP1012"],
+    desc: "Riscos ocupacionais. Precauções padrão. Controle da infecção. Gerenciamento de resíduos. Ergonomia.",
+    objGeral: "Conscientizar sobre biossegurança e ergonomia na odontologia.",
+    objEsp: ["Conhecer os riscos biológicos, físicos e ergonômicos.", "Conhecer as precauções padrão.", "Conhecer os protocolos de controle de infecção."],
+    biblioObrig: "ANVISA. RDC nº 1.002, de 15 de dezembro de 2025.\nSILVA, Almenara. Biossegurança em odontologia. 2. ed. Ícone, 2009.",
+    biblioComp: "REGIS FILHO, Gilsée. Ergonomia Aplicada à Odontologia. Bookess, 2011.",
+    equiv: "ODT7000 EH ODT7004" },
+  { id: "PTL1016", period: 3, name: "Cariologia", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "PTL",
+    prereq: ["MOR1008", "BQA1004", "MOR1011", "MIP1012"],
+    desc: "Cárie dentária: epidemiologia, determinantes, prevenção e controle. Fluorose. Diagnóstico e manejo.",
+    objGeral: "Compreender a cárie dentária em sua natureza multifatorial.",
+    objEsp: ["Analisar indicadores epidemiológicos.", "Explicar mecanismos da desmineralização.", "Realizar diagnóstico clínico.", "Planejar estratégias de prevenção."],
+    biblioObrig: "Baratieri LN. Dentística. Quintessence, 1992.\nFeldens CA. Cárie dentária na infância. Santos, 2013.",
+    biblioComp: "Buzalaf MAR. Fluoretos e saúde bucal. Santos, 2008.\nThylstrup A. Cariologia clínica. 2ª ed. Santos, 1995.",
+    equiv: "ODT7019" },
+  { id: "ODT1017", period: 3, name: "Deontologia", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1002"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "" },
+  { id: "PTL1018", period: 3, name: "Diagnóstico Bucal I", total: 4, teorico: 1, lab: 3, clinico: 0, carater: "Obrigatória", dept: "PTL",
+    prereq: ["MOR1008", "PTL1010", "MIP1012", "MOR1011"],
+    desc: "Anamnese, exame físico, lesões fundamentais. Biópsias e exames complementares. Infecções virais, fúngicas, bacterianas, imunomediadas e neoplasias.",
+    objGeral: "Realizar diagnóstico em Estomatologia de forma sistematizada.",
+    objEsp: ["Desenvolver habilidades de propedêutica.", "Aplicar raciocínio clínico.", "Indicar exames complementares.", "Interpretar exames anatomopatológicos.", "Estabelecer correlação clínico-patológica."],
+    biblioObrig: "Neville BW. Patologia oral e maxilofacial. 4ª ed. Elsevier, 2021.\nRegezi JA. Patologia Bucal. 6ª ed. Guanabara Koogan.",
+    biblioComp: "Little JW. Manejo odontológico do paciente clinicamente comprometido. Elsevier, 2009.",
+    equiv: "ODT7002 EH ODT7021 EH PTL7003" },
+  { id: "FMC1019", period: 3, name: "Farmacologia", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "FMC",
+    prereq: ["BQA1004", "PTL1010"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "FMC7001" },
+  { id: "ODT1020", period: 3, name: "Periodontia I", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["MOR1008", "MOR1011", "MIP1012", "PTL1010"],
+    coreq: ["ODT1015"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7141" },
+  { id: "ODT1021", period: 3, name: "Radiologia", total: 4, teorico: 1, lab: 0, clinico: 3, carater: "Obrigatória", dept: "ODT",
+    prereq: ["MOR1008", "PTL1010"],
+    coreq: ["PTL1016", "ODT1015"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7021" },
+
+  // === FASE 4 ===
+  { id: "ODT1022", period: 4, name: "Clínica Integrada I", total: 10, teorico: 0, lab: 0, clinico: 10, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1014", "ODT1015", "PTL1016", "ODT1017", "PTL1018", "FMC1019", "ODT1020", "ODT1021"],
+    coreq: ["ODT1023", "ODT1024", "ODT1027"],
+    desc: "Introdução ao ambiente clínico odontológico. Biossegurança, ergonomia, comunicação e humanização. Exame clínico e documentação. Radiologia básica. Avaliação periodontal. Suporte básico de vida.",
+    objGeral: "Desenvolver competências para o atendimento clínico odontológico integral.",
+    objEsp: ["Aplicar princípios de biossegurança.", "Desenvolver habilidades para exame clínico.", "Executar fundamentos de radiologia.", "Identificar condições periodontais.", "Reconhecer urgências médicas."],
+    biblioObrig: "", biblioComp: "", equiv: "" },
+  { id: "ODT1023", period: 4, name: "Dentística", total: 6, teorico: 2, lab: 4, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1014", "ODT1015", "PTL1016", "ODT1021"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7006" },
+  { id: "ODT1024", period: 4, name: "Diagnóstico Bucal II", total: 4, teorico: 1, lab: 3, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["PTL1016", "PTL1018", "FMC1019", "ODT1021"],
+    coreq: ["PTL1025"],
+    desc: "Alterações dentárias e ósseas. Anomalias de desenvolvimento. Doenças da polpa e periápice. Cistos e tumores. Lesões fibro-ósseas e osteomielites.",
+    objGeral: "Diagnóstico integrado das alterações do complexo maxilomandibular.",
+    objEsp: ["Classificar alterações do desenvolvimento dental.", "Interpretar doenças da polpa e periápice.", "Diferenciar cistos e tumores.", "Analisar alterações ósseas.", "Interpretar exames de imagem."],
+    biblioObrig: "Neville BW. Patologia oral. 4ª ed. Elsevier, 2021.\nWhite SC. Radiologia oral. 5ª ed. Elsevier, 2007.",
+    biblioComp: "Panella J. Radiologia odontológica. Guanabara Koogan, 2006.",
+    equiv: "ODT7002 EH PTL7003 EH ODT7022" },
+  { id: "PTL1025", period: 4, name: "Oncologia Aplicada à Odontologia", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "PTL",
+    prereq: ["PTL1018", "PTL1010"],
+    desc: "Neoplasias benignas e malignas. Carcinogênese. Câncer de boca: fatores de risco, diagnóstico e prevenção. Epidemiologia e políticas públicas.",
+    objGeral: "Compreender os fundamentos da oncologia com ênfase no câncer de boca.",
+    objEsp: ["Compreender conceitos básicos das neoplasias.", "Identificar fatores de risco.", "Realizar exame clínico da cavidade oral.", "Indicar métodos diagnósticos.", "Estabelecer condutas clínicas."],
+    biblioObrig: "INCA. Detecção precoce do câncer de boca. 2022.\nNeville BW. Patologia oral. 4ª ed. Elsevier, 2021.",
+    biblioComp: "BRASIL. Política Nacional de Prevenção e Controle do Câncer. 2023.",
+    equiv: "" },
+  { id: "ODT1026", period: 4, name: "Periodontia II", total: 3, teorico: 2, lab: 1, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1015", "ODT1020"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7142" },
+  { id: "ODT1027", period: 4, name: "Terapêutica Medicamentosa e Anestesiologia", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["MOR1008", "FMC1019"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7111 EH ODT7112" },
+
+  // === FASE 5 ===
+  { id: "ODT1028", period: 5, name: "Biomateriais Odontológicos II", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1014", "ODT1023"],
+    desc: "Materiais de moldagem. Gessos. Resinas sintéticas. CAD/CAM. Cerâmicas. Cimentos. Materiais para implantes.",
+    objGeral: "Conhecer materiais para restaurações indiretas.",
+    objEsp: ["Identificar e manipular materiais para restaurações indiretas.", "Compreender propriedades físicas e mecânicas."],
+    biblioObrig: "SHEN, Chiayi. Phillips materiais dentários. 13. ed. Guanabara Koogan, 2023.",
+    biblioComp: "BARATIERI, LUIS N. Odontologia Restauradora. 2. ed. Santos, 2024.",
+    equiv: "ODT7102" },
+  { id: "ODT1029", period: 5, name: "Cirurgia e Traumatologia Bucomaxilofacial I", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1024", "ODT1027", "ODT1022"],
+    desc: "Exodontia simples e complexa. Instrumental. Complicações trans e pós-operatórias.",
+    objGeral: "Capacitar para exodontia e avaliação sistêmica.",
+    objEsp: ["Identificar instrumentais.", "Avaliar técnica adequada.", "Avaliar exames complementares."],
+    biblioObrig: "PETERSON, Larry J. Cirurgia Oral. 7. ed. Guanabara Koogan, 2021.\nMALAMED, Stanley F. Anestesia local. 6. ed. Elsevier, 2013.",
+    biblioComp: "NOGUEIRA, A.S. Dentes inclusos. Santos, 2008.",
+    equiv: "ODT7121" },
+  { id: "ODT1030", period: 5, name: "Clínica Integrada II", total: 15, teorico: 0, lab: 0, clinico: 15, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1022", "ODT1023", "ODT1024", "ODT1026", "ODT1027", "ODT1015"],
+    coreq: ["ODT1029", "ODT1032"],
+    desc: "Atendimento em Dentística e Periodontia. Restaurações diretas. Controle de biofilme. Profilaxia e raspagem.",
+    objGeral: "Desenvolver competências em Dentística e Periodontia.",
+    objEsp: ["Cuidado integral do paciente.", "Promoção e prevenção.", "Diagnóstico e tratamento.", "Continuidade dos tratamentos."],
+    biblioObrig: "", biblioComp: "", equiv: "ODT7009" },
+  { id: "ODT1032", period: 5, name: "Endodontia", total: 6, teorico: 2, lab: 4, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1023", "ODT1024", "ODT1015"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7005" },
+  { id: "SPB1033", period: 5, name: "Métodos epidemiológicos", total: 2, teorico: 1, lab: 1, clinico: 0, carater: "Obrigatória", dept: "SPB",
+    prereq: ["SPB1013"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "SPB7112" },
+
+  // === FASE 6 ===
+  { id: "ODT1035", period: 6, name: "Cirurgia e Traumatologia Bucomaxilofacial II", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1029", "ODT1030"],
+    desc: "Dentes impactados. Cirurgia pré-protética. Infecções odontogênicas. Cistos e patologias ósseas.",
+    objGeral: "Capacitar para cirurgia oral de maior complexidade.",
+    objEsp: ["Diagnóstico e tratamento de dentes inclusos.", "Diagnóstico e tratamento de casos complexos."],
+    biblioObrig: "Gil,JN. Cirurgia do Terceiro Molar. Santos, 2012.\nMedeiros, P.J. Dentes inclusos. Santos, 2003.",
+    biblioComp: "PETERSON, Larry J. Cirurgia Oral. 7. ed. Guanabara Koogan, 2021.",
+    equiv: "ODT7122" },
+  { id: "ODT1036", period: 6, name: "Clínica Integrada III", total: 15, teorico: 0, lab: 0, clinico: 15, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1030", "ODT1028", "ODT1029", "ODT1032", "ODT1015"],
+    coreq: ["ODT1035"],
+    desc: "Atendimento em Dentística, Periodontia, Cirurgia e Endodontia. Tratamentos endodônticos de unirradiculares.",
+    objGeral: "Desenvolver competências integradas.",
+    objEsp: ["Cuidado integral do paciente.", "Promoção e prevenção.", "Diagnóstico e tratamento.", "Continuidade dos tratamentos."],
+    biblioObrig: "", biblioComp: "", equiv: "ODT7011" },
+  { id: "ODT1038", period: 6, name: "Odontogeriatria", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1030", "SPB1013"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7012" },
+  { id: "ODT1037", period: 6, name: "Odontologia para Pacientes com Necessidades Específicas", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1024", "ODT1030", "PTL1025", "ODT1027"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7001" },
+  { id: "ODT1039", period: 6, name: "Prótese Parcial Removível", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1028", "ODT1023", "ODT1026", "ODT1032"],
+    coreq: ["ODT1040"],
+    desc: "Componentes da PPR. Delineadores e preparo. Moldagem. Relação maxilomandibular. Prova e instalação.",
+    objGeral: "Capacitar para confecção e acompanhamento de PPR.",
+    objEsp: ["Compreender princípios biológicos e biomecânicos.", "Identificar componentes da PPR.", "Executar procedimentos laboratoriais.", "Desenvolver habilidade no delineamento.", "Correlacionar etapas clínicas e laboratoriais."],
+    biblioObrig: "FIORI S.R. Atlas de Prótese Parcial Removível. 4ª ed. Pancast, 1993.\nMc CRACKEN, W.M. Prótese Parcial Removível. 4ª ed. Artes Médicas, 1979.",
+    biblioComp: "JOHNSON, D.L. Fundamentos da Prótese Parcial Removível. Quintessence, 1988.",
+    equiv: "ODT7008" },
+  { id: "ODT1040", period: 6, name: "Prótese Total", total: 4, teorico: 1, lab: 3, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1028", "ODT1030", "ODT1015", "ODT1029"],
+    coreq: ["ODT1039"],
+    desc: "Moldagem funcional. Relações maxilo-mandibulares. Seleção e montagem de dentes. Oclusão protética.",
+    objGeral: "Confeccionar prótese total em manequins.",
+    objEsp: ["Executar moldagens.", "Registrar relações maxilo-mandibulares.", "Selecionar e montar dentes."],
+    biblioObrig: "PRISCO DA CUNHA, V.P. Prótese Total. Santos, 2007.\nZARB, B.A. Tratamento Protético para edêntulos. 12ª ed. Santos, 2006.",
+    biblioComp: "TURANO, J.C. Fundamentos de prótese total. 4. ed. Quintessence, 1998.",
+    equiv: "ODT7007" },
+  { id: "ODT1041", period: 6, name: "Saúde Bucal Coletiva", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["SPB1033"],
+    desc: "Fundamentos da saúde bucal coletiva. SUS, equidade e integralidade. Vigilância em saúde. Intervenções coletivas.",
+    objGeral: "Compreender a Saúde Bucal Coletiva no SUS.",
+    objEsp: ["Analisar fundamentos ético-políticos.", "Compreender a organização do sistema.", "Aplicar ferramentas de vigilância.", "Analisar modelos de atenção.", "Planejar intervenções."],
+    biblioObrig: "PEREIRA, A.C. Saúde Bucal Coletiva. Napoleão, 2025.\nMOYSÉS, S. T. Saúde bucal das famílias. Artes Médicas, 2008.",
+    biblioComp: "NARVAI, Paulo Capel. Odontologia e saúde bucal coletiva. 2. ed. Santos, 2002.",
+    equiv: "ODT7190" },
+
+  // === FASE 7 ===
+  { id: "ODT1034", period: 7, name: "Atenção à Saúde Bucal em Pacientes Com Necessidades Específicas", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1036", "ODT1037", "ODT1038", "ODT1041", "ODT1015"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "" },
+  { id: "ODT1042", period: 7, name: "Clínica de Referência I - Estomatologia e Cirurgia e Traumatologia Bucomaxilofacial", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1036", "ODT1035", "ODT1024", "ODT1015", "ODT1037"],
+    desc: "", objGeral: "Desenvolver competências para o atendimento clínico odontológico nas áreas de Estomatologia e Cirurgia.",
+    objEsp: ["Desenvolver competências para o cuidado integral do(a) paciente.", "Desenvolver competências clínicas para o diagnóstico, planejamento e tratamento em Estomatologia e Cirurgia.", "Atuar em sistema de referência/contrarreferência."],
+    biblioObrig: "", biblioComp: "", equiv: "" },
+  { id: "ODT1043", period: 7, name: "Clínica Integrada IV", total: 10, teorico: 0, lab: 0, clinico: 10, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1036", "ODT1028", "ODT1039", "ODT1040", "ODT1015", "ODT1035"],
+    desc: "Atendimento em Dentística, Periodontia, Endodontia, Prótese Total e PPR. Clareamento e restaurações.",
+    objGeral: "Desenvolver competências integradas.",
+    objEsp: ["Cuidado integral.", "Promoção e prevenção.", "Diagnóstico e tratamento.", "Continuidade dos tratamentos."],
+    biblioObrig: "", biblioComp: "", equiv: "" },
+  { id: "ODT1044", period: 7, name: "Disfunção temporomandibular e Dor Orofacial", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1036", "ODT1037", "ODT1038", "ODT1027"],
+    desc: "Classificação da dor orofacial. Neurofisiologia. Avaliação e diagnóstico de DTM. Bruxismo. Abordagens terapêuticas.",
+    objGeral: "Diagnosticar e planejar tratamento de DTM e dores orofaciais.",
+    objEsp: ["Ensinar mecanismos neurofisiológicos.", "Desenvolver competências para classificação.", "Capacitar para diagnóstico clínico.", "Apresentar abordagens terapêuticas."],
+    biblioObrig: "Conti, Paulo. DTM e Dores Orofaciais. Dental Press, 2020.\nSiqueira, José Tadeu. Dores Orofaciais. Artes Médicas, 2012.",
+    biblioComp: "OKESON, Jeffrey P. Distúrbios Temporomandibulares. 8ª ed. Guanabara Koogan, 2021.",
+    equiv: "ODT7132" },
+  { id: "ODT1045", period: 7, name: "Odontopediatria", total: 3, teorico: 3, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["PTL1016", "ODT1028", "ODT1036", "ODT1037"],
+    desc: "Desenvolvimento da dentição. Manejo do comportamento. Diagnóstico e tratamento em crianças.",
+    objGeral: "Compreender a atenção integral à saúde bucal de crianças.",
+    objEsp: ["Compreender crescimento e desenvolvimento.", "Realizar anamnese e exame clínico.", "Aplicar princípios de promoção.", "Desenvolver ações preventivas.", "Executar procedimentos clínicos."],
+    biblioObrig: "GUEDES-PINTO, Antonio Carlos. Odontopediatria. 3. ed. Santos, 1991.\nASSED, Sada. Odontopediatria. Artes Médicas, 2005.",
+    biblioComp: "FELDENS, Carlos Alberto. Cárie dentária na infância. Santos, 2013.",
+    equiv: "ODT7013" },
+  { id: "ODT1046", period: 7, name: "Ortodontia", total: 4, teorico: 2, lab: 2, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["MOR1011", "BEG1009", "BEG1005", "ODT1036", "ODT1015"],
+    coreq: ["ODT1045"],
+    desc: "Crescimento craniofacial. Oclusão e maloclusões. Diagnóstico e interceptação. Aparelhos ortodônticos.",
+    objGeral: "Compreender o crescimento craniofacial e oclusão.",
+    objEsp: ["Adquirir conhecimento sobre desenvolvimento craniofacial.", "Adquirir conhecimento sobre desenvolvimento da dentição.", "Treinar confecção de aparelhos."],
+    biblioObrig: "PROFFIT, William R. Ortodontia contemporânea. 4. ed. Elsevier, 2007.\nMOYERS, Robert E. Ortodontia. 4. ed. Guanabara Koogan, 1991.",
+    biblioComp: "GRABER, Thomas M. Ortodontia: princípios e técnicas. 2. ed. Guanabara Koogan, 1996.",
+    equiv: "ODT7010" },
+  { id: "ODT1047", period: 7, name: "Prótese Fixa", total: 5, teorico: 1, lab: 4, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1028", "ODT1032", "ODT1039", "ODT1040", "ODT1015", "ODT1036"],
+    desc: "Tipos de próteses fixas. Preparo dental. Provisionalização. Moldagem. CAD/CAM. Cimentação.",
+    objGeral: "Planejar e executar próteses fixas.",
+    objEsp: ["Compreender indicações.", "Desenvolver habilidade de preparo dental.", "Executar etapas clínicas e laboratoriais.", "Realizar retentores intrarradiculares.", "Selecionar materiais."],
+    biblioObrig: "VOLPATO, C. A. M. Próteses Odontológicas. 2ª ed. Guanabara Koogan, 2021.\nSHILLINGBURG, H. T. Fundamentos de Prótese Fixa. 3 ed. Quintessence, 1986.",
+    biblioComp: "BARATIERI, L. N. Odontologia Restauradora. Santos, 2001.",
+    equiv: "ODT7008" },
+
+  // === FASE 8 ===
+  { id: "ODT1049", period: 8, name: "Clínica da Criança e Adolescente I", total: 10, teorico: 0, lab: 0, clinico: 10, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1043", "ODT1045", "ODT1046", "ODT1015"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7161" },
+  { id: "ODT1050", period: 8, name: "Clínica de Referência II - Endodontia, Dor Orofacial e Disfunção Temporomandibular", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1032", "ODT1042", "ODT1044", "ODT1015", "ODT1043"],
+    coreq: ["ODT1048"],
+    desc: "", objGeral: "Desenvolver competências para o atendimento clínico odontológico nas áreas de Endodontia e DTM.",
+    objEsp: ["Desenvolver competências para o cuidado integral do(a) paciente.", "Desenvolver competências clínicas para o diagnóstico, planejamento e tratamento em Endodontia e DTM.", "Atuar em sistema de referência/contrarreferência."],
+    biblioObrig: "", biblioComp: "", equiv: "ODT7171" },
+  { id: "ODT1048", period: 8, name: "Traumatologia Dento-alveolar", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1035", "ODT1023", "ODT1032", "ODT1045", "ODT1027", "ODT1026"],
+    desc: "Fraturas, luxações e avulsão dentária. Concussão e subluxação. Proservação.",
+    objGeral: "Diagnosticar e tratar traumatismos dento-alveolares.",
+    objEsp: ["Diagnosticar traumatismos.", "Definir condutas emergenciais.", "Definir condutas de proservação."],
+    biblioObrig: "ANDREASSEN J.O. Traumatismo dental. 2a Ed. Artes Médicas, 2001.",
+    biblioComp: "PETERSON, Larry J. Cirurgia Oral. 7. ed. Guanabara Koogan, 2021.",
+    equiv: "ODT7123" },
+  { id: "ODT1051", period: 8, name: "Clínica Integrada V", total: 10, teorico: 0, lab: 0, clinico: 10, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1043", "ODT1038", "ODT1047", "ODT1015", "ODT1042"],
+    desc: "Atendimento em Dentística, Periodontia, Cirurgia, Prótese Total, PPR e Prótese Fixa.",
+    objGeral: "Desenvolver competências integradas.",
+    objEsp: ["Cuidado integral.", "Promoção e prevenção.", "Diagnóstico e tratamento.", "Continuidade dos tratamentos."],
+    biblioObrig: "", biblioComp: "", equiv: "ODT7016" },
+  { id: "ODT1052", period: 8, name: "Estágio Interno I", total: 5, teorico: 0, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1043", "ODT1047", "ODT1040", "ODT1039", "ODT1032", "ODT1015"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7171" },
+  { id: "ODT1053", period: 8, name: "Implantodontia", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1047", "ODT1026", "ODT1035", "ODT1042", "ODT1043"],
+    desc: "Osseointegração. Planejamento reverso. Técnicas cirúrgicas. Prótese sobre implantes.",
+    objGeral: "Compreender os fundamentos da Implantodontia.",
+    objEsp: ["Identificar princípios da osseointegração.", "Analisar exames de imagem.", "Descrever etapas cirúrgicas.", "Reconhecer componentes protéticos."],
+    biblioObrig: "BIANCHINI, M. A. O passo a passo cirúrgico. Santos, 2007.\nCARDOSO, A. C. Prótese sobre implante. Santos, 2008.",
+    biblioComp: "BUSER, D. 20 anos de regeneração óssea. 2. ed. Quintessence, 2010.",
+    equiv: "ODT7014" },
+
+  // === FASE 9 ===
+  { id: "ODT1054", period: 9, name: "Clínica da Criança e Adolescente II", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1049", "ODT1046", "ODT1045", "ODT1015", "ODT1048"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7162" },
+  { id: "ODT1055", period: 9, name: "Clínica de Referência III - Implantodontia", total: 10, teorico: 0, lab: 0, clinico: 10, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1050", "ODT1028", "ODT1047", "ODT1053", "ODT1015", "ODT1051"],
+    desc: "", objGeral: "Desenvolver competências para o atendimento clínico odontológico nas áreas de Implantodontia e Prótese sobre implantes.",
+    objEsp: ["Desenvolver competências para o cuidado integral do(a) paciente.", "Desenvolver competências clínicas para o diagnóstico, planejamento e tratamento em Implantodontia.", "Atuar em sistema de referência/contrarreferência."],
+    biblioObrig: "", biblioComp: "", equiv: "" },
+  { id: "ODT1056", period: 9, name: "Clínica Integrada VI", total: 10, teorico: 0, lab: 0, clinico: 10, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1051", "ODT1053", "ODT1015", "ODT1050"],
+    desc: "Atendimento de maior complexidade. Proservação e acompanhamento longitudinal.",
+    objGeral: "Desenvolver competências integradas de alta complexidade.",
+    objEsp: ["Cuidado integral.", "Promoção e prevenção.", "Diagnóstico e tratamento.", "Continuidade dos tratamentos."],
+    biblioObrig: "", biblioComp: "", equiv: "" },
+  { id: "ODT1057", period: 9, name: "Estágio Interno II", total: 5, teorico: 0, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1052", "ODT1051", "ODT1015", "ODT1047", "ODT1023", "ODT1044", "ODT1040"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7172" },
+  { id: "ODT1058", period: 9, name: "Odontologia Legal", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1017", "ODT1051", "ODT1049", "ODT1050", "ODT1053", "ODT1052", "ODT1048"],
+    desc: "Perícia e identificação humana. Traumatologia forense. Documentação odontológica. Laudos e pareceres.",
+    objGeral: "Aplicar conhecimentos de Odontologia Legal.",
+    objEsp: ["Compreender fundamentos da perícia.", "Aplicar métodos de identificação.", "Reconhecer valor jurídico da documentação.", "Identificar inconformidades em auditoria.", "Correlacionar aspectos técnicos com demandas judiciais."],
+    biblioObrig: "VANRELL, Jorge Paulete. Odontologia Legal. Guanabara Koogan, 2002.\nDARUGE, Eduardo. Tratado de odontologia legal. Guanabara Koogan, 2017.",
+    biblioComp: "CFO. Código de Ética Odontológico. 2012.",
+    equiv: "ODT7018" },
+  { id: "ODT1059", period: 9, name: "Trabalho de Conclusão de Curso", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["SPB1033"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7183" },
+
+  // === FASE 10 ===
+  { id: "ODT1060", period: 10, name: "Estágio na Rede de Atenção à Saúde", total: 48, teorico: 0, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT",
+    prereq: ["ODT1041", "ODT1034", "ODT1054", "ODT1055", "ODT1056", "ODT1057", "ODT1058", "ODT1015", "SPB1013"],
+    desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "" }
+];
+
+// ============================================================
+// FUNÇÕES DO FLUXOGRAMA
+// ============================================================
+const trackEl = document.getElementById('track-wp');
+const svgEl = document.getElementById('edges-wp');
+const panelEl = document.getElementById('panel-wp');
+const panelBodyEl = document.getElementById('panelBody-wp');
+const overlayEl = document.getElementById('overlay-wp');
+const closeBtnEl = document.getElementById('closeBtn-wp');
+
+// Monta colunas por fase
+for (let p = 1; p <= 10; p++) {
+  const col = document.createElement('div');
+  col.className = 'semester';
+  col.innerHTML = '<div class="semester-tab"><span class="num">'+p+'</span> '+p+'º Fase</div>';
+  coursesOdonto.filter(c => c.period === p).forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-wp-' + c.id;
+    card.innerHTML = '<div class="code">'+c.id+'</div><div class="name">'+c.name+'</div><div class="credits">'+c.total+' cr.</div>';
+    card.addEventListener('click', () => selectCourse(c.id));
+    col.appendChild(card);
+  });
+  trackEl.appendChild(col);
+}
+
+// Constrói arestas (pré-requisitos e correquisitos)
+const edgesList = [];
+coursesOdonto.forEach(c => {
+  if (c.prereq) {
+    c.prereq.forEach(p => {
+      edgesList.push({ from: p, to: c.id, type: 'prereq' });
+    });
+  }
+  if (c.coreq) {
+    c.coreq.forEach(p => {
+      edgesList.push({ from: p, to: c.id, type: 'coreq' });
+    });
+  }
+});
+
+function drawEdges() {
+  const rect = trackEl.getBoundingClientRect();
+  svgEl.setAttribute('width', trackEl.scrollWidth);
+  svgEl.setAttribute('height', trackEl.scrollHeight);
+  svgEl.innerHTML = '';
+  
+  edgesList.forEach(e => {
+    const fromEl = document.getElementById('card-wp-' + e.from);
+    const toEl = document.getElementById('card-wp-' + e.to);
+    if (!fromEl || !toEl) return;
+    
+    const r1 = fromEl.getBoundingClientRect();
+    const r2 = toEl.getBoundingClientRect();
+    
+    const x1 = r1.right - rect.left;
+    const y1 = r1.top + r1.height/2 - rect.top;
+    const x2 = r2.left - rect.left;
+    const y2 = r2.top + r2.height/2 - rect.top;
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    
+    if (e.type === 'coreq') {
+      const centerX1 = r1.left + r1.width/2 - rect.left;
+      const centerX2 = r2.left + r2.width/2 - rect.left;
+      const topY2 = r2.top - rect.top;
+      const bottomY1 = r1.bottom - rect.top;
+      
+      if (r2.top > r1.top) {
+        path.setAttribute('d', 'M '+centerX1+' '+bottomY1+' L '+centerX2+' '+topY2);
+      } else {
+        const topY1 = r1.top - rect.top;
+        const bottomY2 = r2.bottom - rect.top;
+        path.setAttribute('d', 'M '+centerX1+' '+topY1+' L '+centerX2+' '+bottomY2);
+      }
+      path.dataset.type = 'coreq';
+      path.classList.add('coreq-line');
+    } else {
+      const cx1 = x1 + (x2 - x1) * 0.5;
+      const cx2 = x2 - (x2 - x1) * 0.5;
+      path.setAttribute('d', 'M '+x1+' '+y1+' C '+cx1+' '+y1+', '+cx2+' '+y2+', '+x2+' '+y2);
+      path.dataset.type = 'prereq';
+      path.classList.add('edge');
+    }
+    
+    path.dataset.from = e.from;
+    path.dataset.to = e.to;
+    svgEl.appendChild(path);
+  });
+}
+
+window.addEventListener('load', () => setTimeout(drawEdges, 200));
+window.addEventListener('resize', () => requestAnimationFrame(drawEdges));
+
+function getDirectPrereqs(id) {
+  const result = new Set();
+  edgesList.filter(e => e.to === id && e.type === 'prereq').forEach(e => {
+    result.add(e.from);
+  });
+  return result;
+}
+
+function getDirectCoreqs(id) {
+  const result = new Set();
+  edgesList.filter(e => e.to === id && e.type === 'coreq').forEach(e => {
+    result.add(e.from);
+  });
+  return result;
+}
+
+function selectCourse(id) {
+  const course = coursesOdonto.find(c => c.id === id);
+  if (!course) return;
+  
+  document.querySelectorAll('#fluxograma-wp .card').forEach(el => el.classList.remove('selected','prereq','coreq','dim'));
+  document.querySelectorAll('#fluxograma-wp .edge, #fluxograma-wp .coreq-line').forEach(el => el.classList.remove('highlight','coreq-highlight','dim'));
+  
+  const directPrereqs = getDirectPrereqs(id);
+  const directCoreqs = getDirectCoreqs(id);
+  const allRelated = new Set([...directPrereqs, ...directCoreqs, id]);
+  
+  document.querySelectorAll('#fluxograma-wp .card').forEach(el => {
+    const cid = el.id.replace('card-wp-','');
+    if (!allRelated.has(cid)) el.classList.add('dim');
+  });
+  
+  const sel = document.getElementById('card-wp-'+id);
+  if (sel) sel.classList.add('selected');
+  
+  directPrereqs.forEach(a => { 
+    const el = document.getElementById('card-wp-'+a); 
+    if(el) el.classList.add('prereq'); 
+  });
+  
+  directCoreqs.forEach(a => { 
+    const el = document.getElementById('card-wp-'+a); 
+    if(el) el.classList.add('coreq'); 
+  });
+  
+  document.querySelectorAll('#fluxograma-wp .edge, #fluxograma-wp .coreq-line').forEach(el => {
+    const from = el.dataset.from;
+    const to = el.dataset.to;
+    const isPrereqRelated = directPrereqs.has(from) && to === id;
+    const isCoreqRelated = directCoreqs.has(from) && to === id;
+    
+    if (isPrereqRelated) {
+      el.classList.add('highlight');
+    } else if (isCoreqRelated) {
+      el.classList.add('coreq-highlight');
+    } else {
+      el.classList.add('dim');
+    }
+  });
+
+  const total = course.total || 0;
+  const teorico = course.teorico || 0;
+  const lab = course.lab || 0;
+  const clinico = course.clinico || 0;
+  let credDetail = '';
+  const parts = [];
+  if(teorico > 0) parts.push('Teórico: '+teorico+' cr.');
+  if(lab > 0) parts.push('Laboratório: '+lab+' cr.');
+  if(clinico > 0) parts.push('Clínico: '+clinico+' cr.');
+  if(parts.length) credDetail = '<div class="p-credits-detail">'+parts.join(' · ')+'</div>';
+
+  const metaInfo = '<div class="p-meta"><strong>Caráter:</strong> '+(course.carater || 'Não informado')+'<br><strong>Departamento:</strong> '+(course.dept || 'Não informado')+'</div>';
+
+  const prereqList = (course.prereq && course.prereq.length) ? 
+    '<ul>'+course.prereq.map(p => {
+      const found = coursesOdonto.find(c => c.id === p);
+      return '<li onclick="selectCourse(\''+p+'\')">'+(found ? found.name : p)+' <span class="tag-prereq">'+p+'</span></li>';
+    }).join('')+'</ul>' : '<p class="empty">Nenhum pré-requisito.</p>';
+
+  const coreqList = (course.coreq && course.coreq.length) ? 
+    '<ul>'+course.coreq.map(p => {
+      const found = coursesOdonto.find(c => c.id === p);
+      return '<li class="coreq-item" onclick="selectCourse(\''+p+'\')">'+(found ? found.name : p)+' <span class="tag-coreq">'+p+'</span></li>';
+    }).join('')+'</ul>' : '<p class="empty">Nenhum correquisito.</p>';
+
+  const objEspList = (course.objEsp && course.objEsp.length) ? 
+    '<ul>'+course.objEsp.map(o => '<li>'+o+'</li>').join('')+'</ul>' : '<p class="empty">Não informado.</p>';
+  
+  const biblioObrig = course.biblioObrig ? course.biblioObrig.replace(/\n/g,'<br>') : '<span class="empty">Não informado.</span>';
+  const biblioComp = course.biblioComp ? course.biblioComp.replace(/\n/g,'<br>') : '<span class="empty">Não informado.</span>';
+  const equiv = course.equiv || '<span class="empty">Não informado.</span>';
+
+  panelBodyEl.innerHTML = `
+    <div class="p-code">${course.id} · ${course.period}º Fase</div>
+    <div class="p-name">${course.name}</div>
+    <div class="p-credits">${total} créditos totais</div>
+    ${credDetail}
+    ${metaInfo}
+    <h3>Pré-requisitos</h3>
+    <div class="block prereq-list">${prereqList}</div>
+    <h3>Correquisitos</h3>
+    <div class="block coreq-list">${coreqList}</div>
+    <h3>Ementa</h3>
+    <div class="block">${course.desc || 'Não informado.'}</div>
+    <h3>Objetivo Geral</h3>
+    <div class="block">${course.objGeral || 'Não informado.'}</div>
+    <h3>Objetivos Específicos</h3>
+    <div class="block">${objEspList}</div>
+    <h3>Bibliografia Obrigatória</h3>
+    <div class="block">${biblioObrig}</div>
+    <h3>Bibliografia Complementar</h3>
+    <div class="block">${biblioComp}</div>
+    <h3>Equivalências</h3>
+    <div class="block">${equiv}</div>
+  `;
+  panelEl.classList.add('open');
+  overlayEl.classList.add('open');
+}
+
+function closePanel() {
+  panelEl.classList.remove('open');
+  overlayEl.classList.remove('open');
+  document.querySelectorAll('#fluxograma-wp .card').forEach(el => el.classList.remove('selected','prereq','coreq','dim'));
+  document.querySelectorAll('#fluxograma-wp .edge, #fluxograma-wp .coreq-line').forEach(el => el.classList.remove('highlight','coreq-highlight','dim'));
+}
+
+closeBtnEl.addEventListener('click', closePanel);
+overlayEl.addEventListener('click', closePanel);
+</script>
+
+</div>
