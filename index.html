@@ -54,11 +54,8 @@
   #fluxograma-wp .card.prereq{border-color:#2D6A4F;}
   #fluxograma-wp .card.prereq .code{color:#2D6A4F;}
   #fluxograma-wp .card.prereq .name{color:#1B4332;}
-  /* Pré-requisito Ensino */
   #fluxograma-wp .card.tipo-ensino.prereq{background:#E8DCC8;}
-  /* Pré-requisito Estágio */
   #fluxograma-wp .card.tipo-estagio.prereq{background:#C8E6C9;}
-  /* Pré-requisito Extensão */
   #fluxograma-wp .card.tipo-extensao.prereq{background:#F8BBD0;}
   
   /* CORREQUISITOS - fundo roxo suave, borda roxa */
@@ -66,11 +63,9 @@
   #fluxograma-wp .card.coreq .code{color:#6C4A9C;}
   #fluxograma-wp .card.coreq .name{color:#3D2A5C;}
   
-  /* Optativas e Complementares em destaque */
   #fluxograma-wp .card.optativa.dim, #fluxograma-wp .card.complementar.dim{opacity:.3;}
   #fluxograma-wp .card.optativa.selected, #fluxograma-wp .card.complementar.selected{border-color:#6C4A9C;background:#D8EDE6;}
   
-  /* SVG */
   #fluxograma-wp svg.edges{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;}
   #fluxograma-wp svg.edges path{fill:none;stroke:#b5aa90;stroke-width:0.8;transition:stroke .25s ease,stroke-width .25s ease,opacity .25s ease;}
   #fluxograma-wp svg.edges path.highlight{stroke:#2D6A4F;stroke-width:2.2;}
@@ -78,13 +73,11 @@
   #fluxograma-wp svg.edges path.coreq-highlight{stroke:#6C4A9C;stroke-width:2.2;}
   #fluxograma-wp svg.edges path.dim{opacity:.15;}
   
-  /* Linhas especiais */
   #fluxograma-wp .linha-especial{display:flex;gap:39px;width:100%;padding-top:14px;}
   #fluxograma-wp .linha-especial .card{flex:0 0 auto;width:210px;}
   #fluxograma-wp .linha-especial .card.optativa{background:#FFF8E7;border-color:#D4A017;}
   #fluxograma-wp .linha-especial .card.complementar{background:#E8F0FE;border-color:#4A7CB5;}
   
-  /* Panel */
   #fluxograma-wp .panel{position:fixed;top:0;right:0;height:100%;width:420px;background:#faf7ef;border-left:2px solid #1e261b;transform:translateX(100%);transition:transform .3s ease;z-index:99999;display:flex;flex-direction:column;padding:28px 28px 24px;overflow-y:auto;}
   #fluxograma-wp .panel.open{transform:translateX(0);}
   #fluxograma-wp .panel .close{align-self:flex-end;background:none;border:1.3px solid #1e261b;color:#1e261b;font-family:monospace;font-size:11px;letter-spacing:.06em;padding:5px 10px;border-radius:2px;cursor:pointer;margin-bottom:18px;}
@@ -145,7 +138,7 @@
 
 <script>
 // ============================================================
-// DADOS ATUALIZADOS - Planilha 03/08/2026 (com coluna Tipo)
+// DADOS ATUALIZADOS - Planilha 07/08/2026
 // ============================================================
 const coursesOdonto = [
   // === FASE 1 ===
@@ -247,6 +240,7 @@ const coursesOdonto = [
     desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "" },
   { id: "PTL1018", period: 3, name: "Diagnóstico Bucal I", total: 4, teorico: 1, lab: 3, clinico: 0, carater: "Obrigatória", dept: "PTL", tipo: "Ensino",
     prereq: ["MOR1008", "PTL1010", "MIP1012", "MOR1011"],
+    coreq: ["ODT1021"],
     desc: "Anamnese, exame físico, lesões fundamentais. Biópsias e exames complementares. Infecções virais, fúngicas, bacterianas, imunomediadas e neoplasias.",
     objGeral: "Realizar diagnóstico em Estomatologia de forma sistematizada.",
     objEsp: ["Desenvolver habilidades de propedêutica.", "Aplicar raciocínio clínico.", "Indicar exames complementares.", "Interpretar exames anatomopatológicos.", "Estabelecer correlação clínico-patológica."],
@@ -384,7 +378,7 @@ const coursesOdonto = [
   { id: "ODT1034", period: 7, name: "Atenção à Saúde Bucal em Pacientes Com Necessidades Específicas", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT", tipo: "Extensão",
     prereq: ["ODT1036", "ODT1037", "ODT1038", "ODT1041", "ODT1015"],
     desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "" },
-  { id: "ODT1042", period: 7, name: "Clínica de Referência I - Estomatologia e Cirurgia", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT", tipo: "Extensão",
+  { id: "ODT1042", period: 7, name: "Clínica de Referência I - Estomatologia e Cirurgia e Traumatologia Bucomaxilofacial", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT", tipo: "Extensão",
     prereq: ["ODT1036", "ODT1035", "ODT1024", "ODT1015", "ODT1037"],
     desc: "", objGeral: "Desenvolver competências para o atendimento clínico odontológico nas áreas de Estomatologia e Cirurgia.",
     objEsp: ["Desenvolver competências para o cuidado integral do(a) paciente.", "Desenvolver competências clínicas para o diagnóstico, planejamento e tratamento em Estomatologia e Cirurgia.", "Atuar em sistema de referência/contrarreferência."],
@@ -433,8 +427,9 @@ const coursesOdonto = [
   // === FASE 8 ===
   { id: "ODT1049", period: 8, name: "Clínica da Criança e Adolescente I", total: 10, teorico: 0, lab: 0, clinico: 10, carater: "Obrigatória", dept: "ODT", tipo: "Extensão",
     prereq: ["ODT1043", "ODT1045", "ODT1046", "ODT1015"],
+    coreq: ["ODT1048"],
     desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7161" },
-  { id: "ODT1050", period: 8, name: "Clínica de Referência II - Endodontia, Dor Orofacial e DTM", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT", tipo: "Extensão",
+  { id: "ODT1050", period: 8, name: "Clínica de Referência II - Endodontia, Dor Orofacial e Disfunção Temporomandibular", total: 5, teorico: 0, lab: 0, clinico: 5, carater: "Obrigatória", dept: "ODT", tipo: "Extensão",
     prereq: ["ODT1032", "ODT1042", "ODT1044", "ODT1015", "ODT1043"],
     coreq: ["ODT1048"],
     desc: "", objGeral: "Desenvolver competências para o atendimento clínico odontológico nas áreas de Endodontia e DTM.",
@@ -457,6 +452,7 @@ const coursesOdonto = [
     biblioObrig: "", biblioComp: "", equiv: "ODT7016" },
   { id: "ODT1052", period: 8, name: "Estágio Interno I", total: 5, teorico: 0, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT", tipo: "Estágio",
     prereq: ["ODT1043", "ODT1047", "ODT1040", "ODT1039", "ODT1032", "ODT1015"],
+    coreq: ["ODT1048"],
     desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7171" },
   { id: "ODT1053", period: 8, name: "Implantodontia", total: 2, teorico: 2, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT", tipo: "Ensino",
     prereq: ["ODT1047", "ODT1026", "ODT1035", "ODT1042", "ODT1043"],
@@ -484,7 +480,7 @@ const coursesOdonto = [
     objEsp: ["Cuidado integral.", "Promoção e prevenção.", "Diagnóstico e tratamento.", "Continuidade dos tratamentos."],
     biblioObrig: "", biblioComp: "", equiv: "" },
   { id: "ODT1057", period: 9, name: "Estágio Interno II", total: 5, teorico: 0, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT", tipo: "Estágio",
-    prereq: ["ODT1052", "ODT1051", "ODT1015", "ODT1047", "ODT1023", "ODT1044", "ODT1040"],
+    prereq: ["ODT1052", "ODT1051", "ODT1015", "ODT1047", "ODT1023", "ODT1044", "ODT1040", "ODT1048", "ODT1050"],
     desc: "", objGeral: "", objEsp: [], biblioObrig: "", biblioComp: "", equiv: "ODT7172" },
   { id: "ODT1058", period: 9, name: "Odontologia Legal", total: 1, teorico: 1, lab: 0, clinico: 0, carater: "Obrigatória", dept: "ODT", tipo: "Ensino",
     prereq: ["ODT1017", "ODT1051", "ODT1049", "ODT1050", "ODT1053", "ODT1052", "ODT1048"],
@@ -524,7 +520,6 @@ for (let p = 1; p <= 10; p++) {
   coursesOdonto.filter(c => c.period === p).forEach(c => {
     const card = document.createElement('div');
     card.className = 'card';
-    // Adiciona classe de tipo
     if (c.tipo === 'Estágio') card.classList.add('tipo-estagio');
     else if (c.tipo === 'Extensão') card.classList.add('tipo-extensao');
     else card.classList.add('tipo-ensino');
@@ -536,7 +531,7 @@ for (let p = 1; p <= 10; p++) {
   fasesRow.appendChild(col);
 }
 
-// Cria os cards especiais (Optativas e Complementares)
+// Cria os cards especiais
 const cardOptativa = document.createElement('div');
 cardOptativa.className = 'card optativa tipo-ensino';
 cardOptativa.id = 'card-wp-OPTATIVA';
@@ -555,7 +550,6 @@ cardComplementar.innerHTML = '<div class="code">Complementares</div><div class="
 cardComplementar.addEventListener('click', () => selectCourse('COMPLEMENTAR'));
 linhaComplementares.appendChild(cardComplementar);
 
-// Adiciona ao array de courses
 const especialCourses = [
   { id: 'OPTATIVA', period: '1-10', name: 'Disciplinas optativas', total: 4, teorico: 0, lab: 0, clinico: 0, carater: 'Optativa', dept: 'ODT', tipo: 'Ensino',
     desc: 'Disciplinas de livre escolha do estudante, conforme interesse de formação. A carga horária total de 4 créditos deve ser cumprida ao longo do curso, podendo ser distribuída em diferentes semestres.', objGeral: '', objEsp: [], biblioObrig: '', biblioComp: '', equiv: '' },
