@@ -33,208 +33,36 @@
   #fluxograma-wp svg.edges path.coreq-line{stroke:#b5aa90;stroke-width:0.8;}
   #fluxograma-wp svg.edges path.coreq-highlight{stroke:#6C4A9C;stroke-width:2.2;}
   #fluxograma-wp svg.edges path.dim{opacity:.15;}
-  
-  /* PAINEL INFERIOR */
-  #fluxograma-wp .panel-bottom {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-height: 60vh;
-    background: #faf7ef;
-    border-top: 2px solid #1e261b;
-    transform: translateY(100%);
-    transition: transform .35s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    padding: 20px 28px 24px;
-    overflow-y: auto;
-    box-shadow: 0 -8px 30px rgba(30,38,27,.15);
-  }
-  #fluxograma-wp .panel-bottom.open {
-    transform: translateY(0);
-  }
-  #fluxograma-wp .panel-bottom .panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 12px;
-    border-bottom: 1.5px solid #d5cdb8;
-    margin-bottom: 14px;
-    flex-shrink: 0;
-  }
-  #fluxograma-wp .panel-bottom .panel-header .p-title {
-    font-family: 'Source Serif 4', serif;
-    font-weight: 700;
-    font-size: 18px;
-    color: #1e261b;
-  }
-  #fluxograma-wp .panel-bottom .panel-header .p-code {
-    font-family: monospace;
-    font-size: 12px;
-    color: #6C4A9C;
-    letter-spacing: .06em;
-  }
-  #fluxograma-wp .panel-bottom .close {
-    background: none;
-    border: 1.3px solid #1e261b;
-    color: #1e261b;
-    font-family: monospace;
-    font-size: 11px;
-    letter-spacing: .06em;
-    padding: 5px 12px;
-    border-radius: 2px;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  #fluxograma-wp .panel-bottom .close:hover {
-    background: #1e261b;
-    color: #faf7ef;
-  }
-  #fluxograma-wp .panel-bottom .panel-body {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 8px;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .p-credits-detail {
-    font-size: 13px;
-    color: #4a5245;
-    margin-bottom: 12px;
-    line-height: 1.5;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .p-meta-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 24px;
-    margin-bottom: 12px;
-    font-size: 13px;
-    color: #4a5245;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .p-meta-grid strong {
-    color: #1e261b;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 32px;
-    margin-top: 4px;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .info-grid .col {
-    min-width: 0;
-  }
-  #fluxograma-wp .panel-bottom .panel-body h3 {
-    font-family: monospace;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .1em;
-    color: #4a5245;
-    border-bottom: 1px solid #d5cdb8;
-    padding-bottom: 4px;
-    margin: 10px 0 6px;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .block {
-    font-size: 13px;
-    line-height: 1.5;
-    margin-bottom: 8px;
-    color: #1e261b;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .block ul {
-    list-style: none;
-    padding: 0;
-    margin: 4px 0 0;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .block ul li {
-    padding: 2px 0 2px 12px;
-    border-bottom: 1px dashed #e0d8c6;
-    position: relative;
-    cursor: pointer;
-    font-size: 12.5px;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .block ul li:hover {
-    color: #2D6A4F;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .block ul li::before {
-    content: "•";
-    position: absolute;
-    left: 0;
-    color: #2D6A4F;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .block ul li.coreq-item::before {
-    color: #6C4A9C;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .block .empty {
-    color: #4a5245;
-    font-style: italic;
-    font-size: 12.5px;
-  }
-  #fluxograma-wp .panel-bottom .panel-body .placeholder {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: #4a5245;
-    font-family: monospace;
-    font-size: 13px;
-    line-height: 1.8;
-    padding: 30px 10px;
-  }
-  .tag-prereq {
-    font-family: monospace;
-    font-size: 9.5px;
-    color: #2D6A4F;
-    background: #E8F5F0;
-    padding: 1px 6px;
-    border-radius: 2px;
-  }
-  .tag-coreq {
-    font-family: monospace;
-    font-size: 9.5px;
-    color: #6C4A9C;
-    background: #F5EEFA;
-    padding: 1px 6px;
-    border-radius: 2px;
-  }
-  
-  #fluxograma-wp .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(30,38,27,.12);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .3s ease;
-    z-index: 99998;
-  }
-  #fluxograma-wp .overlay.open {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  @media(max-width: 760px) {
-    #fluxograma-wp .panel-bottom {
-      max-height: 75vh;
-      padding: 16px 16px 20px;
-    }
-    #fluxograma-wp .panel-bottom .panel-body .info-grid {
-      grid-template-columns: 1fr;
-      gap: 6px;
-    }
-    #fluxograma-wp .panel-bottom .panel-body .p-meta-grid {
-      flex-direction: column;
-      gap: 4px;
-    }
-    #fluxograma-wp .semester {
-      width: 175px;
-      gap: 12px;
-    }
-    #fluxograma-wp .card .name {
-      font-size: 12px;
-    }
-    #fluxograma-wp .track {
-      gap: 26px;
-    }
-  }
+  #fluxograma-wp .panel{position:fixed;top:0;right:0;height:100%;width:420px;background:#faf7ef;border-left:2px solid #1e261b;transform:translateX(100%);transition:transform .3s ease;z-index:99999;display:flex;flex-direction:column;padding:28px 28px 24px;overflow-y:auto;}
+  #fluxograma-wp .panel.open{transform:translateX(0);}
+  #fluxograma-wp .panel .close{align-self:flex-end;background:none;border:1.3px solid #1e261b;color:#1e261b;font-family:monospace;font-size:11px;letter-spacing:.06em;padding:5px 10px;border-radius:2px;cursor:pointer;margin-bottom:18px;}
+  #fluxograma-wp .panel .close:hover{background:#1e261b;color:#faf7ef;}
+  #fluxograma-wp .panel .p-code{font-family:monospace;font-size:11px;color:#2D6A4F;letter-spacing:.06em;}
+  #fluxograma-wp .panel .p-name{font-weight:700;font-size:22px;line-height:1.2;margin:4px 0 8px;color:#1e261b;}
+  #fluxograma-wp .panel .p-credits{font-family:monospace;font-size:11px;color:#2D6A4F;border:1px solid #2D6A4F;border-radius:2px;padding:2px 8px;display:inline-block;margin-bottom:6px;}
+  #fluxograma-wp .panel .p-credits-detail{font-size:13px;color:#4a5245;margin-bottom:14px;line-height:1.5;}
+  #fluxograma-wp .panel .p-meta{font-size:13px;color:#4a5245;margin-bottom:14px;line-height:1.8;}
+  #fluxograma-wp .panel .p-meta strong{color:#1e261b;}
+  #fluxograma-wp .panel .p-desc{font-size:14px;line-height:1.6;color:#1e261b;margin-bottom:16px;}
+  #fluxograma-wp .panel h3{font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#4a5245;border-bottom:1px solid #d5cdb8;padding-bottom:5px;margin:14px 0 8px;}
+  #fluxograma-wp .panel .block{font-size:13.5px;line-height:1.6;margin-bottom:12px;color:#1e261b;}
+  #fluxograma-wp .panel .block ul{list-style:none;padding:0;margin:4px 0 0;}
+  #fluxograma-wp .panel .block ul li{padding:3px 0 3px 12px;border-bottom:1px dashed #e0d8c6;position:relative;cursor:pointer;}
+  #fluxograma-wp .panel .block ul li:hover{color:#2D6A4F;}
+  #fluxograma-wp .panel .block ul li::before{content:"•";position:absolute;left:0;color:#2D6A4F;}
+  #fluxograma-wp .panel .block ul li.coreq-item::before{color:#6C4A9C;}
+  #fluxograma-wp .panel .block .empty{color:#4a5245;font-style:italic;font-size:13px;}
+  #fluxograma-wp .panel .placeholder{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;color:#4a5245;font-family:monospace;font-size:12px;line-height:1.6;padding:0 10px;}
+  #fluxograma-wp .overlay{position:fixed;inset:0;background:rgba(30,38,27,.15);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:99998;}
+  #fluxograma-wp .overlay.open{opacity:1;pointer-events:auto;}
+  .tag-prereq{font-family:monospace;font-size:10px;color:#2D6A4F;background:#E8F5F0;padding:1px 6px;border-radius:2px;}
+  .tag-coreq{font-family:monospace;font-size:10px;color:#6C4A9C;background:#F5EEFA;padding:1px 6px;border-radius:2px;}
+  @media(max-width:760px){#fluxograma-wp .panel{width:100%;top:auto;bottom:0;right:0;height:auto;max-height:75vh;border-left:none;border-top:2px solid #1e261b;transform:translateY(100%);border-radius:10px 10px 0 0;padding:20px 20px 24px;}
+  #fluxograma-wp .panel.open{transform:translateY(0);}
+  #fluxograma-wp .semester{width:175px;gap:12px;}
+  #fluxograma-wp .card .name{font-size:12px;}
+  #fluxograma-wp .track{gap:26px;}
+}
 </style>
 
 <div class="fh">
@@ -251,18 +79,9 @@
 </div>
 
 <div class="overlay" id="overlay-wp"></div>
-
-<aside class="panel-bottom" id="panel-wp">
-  <div class="panel-header">
-    <div>
-      <div class="p-code" id="panel-code">Código · Fase</div>
-      <div class="p-title" id="panel-title">Nome da Disciplina</div>
-    </div>
-    <button class="close" id="closeBtn-wp">FECHAR ✕</button>
-  </div>
-  <div class="panel-body" id="panelBody-wp">
-    <div class="placeholder">Selecione uma disciplina no fluxograma para ver os detalhes.</div>
-  </div>
+<aside class="panel" id="panel-wp">
+  <button class="close" id="closeBtn-wp">FECHAR ✕</button>
+  <div id="panelBody-wp"><div class="placeholder">Selecione uma disciplina.</div></div>
 </aside>
 
 <script>
@@ -630,8 +449,6 @@ const trackEl = document.getElementById('track-wp');
 const svgEl = document.getElementById('edges-wp');
 const panelEl = document.getElementById('panel-wp');
 const panelBodyEl = document.getElementById('panelBody-wp');
-const panelCodeEl = document.getElementById('panel-code');
-const panelTitleEl = document.getElementById('panel-title');
 const overlayEl = document.getElementById('overlay-wp');
 const closeBtnEl = document.getElementById('closeBtn-wp');
 
@@ -779,16 +596,10 @@ function selectCourse(id) {
     }
   });
 
-  // ======== MONTA PAINEL INFERIOR ========
   const total = course.total || 0;
   const teorico = course.teorico || 0;
   const lab = course.lab || 0;
   const clinico = course.clinico || 0;
-  
-  // Atualiza cabeçalho do painel
-  panelCodeEl.textContent = course.id + ' · ' + course.period + 'º Fase';
-  panelTitleEl.textContent = course.name;
-  
   let credDetail = '';
   const parts = [];
   if(teorico > 0) parts.push('Teórico: '+teorico+' cr.');
@@ -796,7 +607,7 @@ function selectCourse(id) {
   if(clinico > 0) parts.push('Clínico: '+clinico+' cr.');
   if(parts.length) credDetail = '<div class="p-credits-detail">'+parts.join(' · ')+'</div>';
 
-  const metaInfo = '<div class="p-meta-grid"><span><strong>Caráter:</strong> '+(course.carater || 'Não informado')+'</span><span><strong>Departamento:</strong> '+(course.dept || 'Não informado')+'</span></div>';
+  const metaInfo = '<div class="p-meta"><strong>Caráter:</strong> '+(course.carater || 'Não informado')+'<br><strong>Departamento:</strong> '+(course.dept || 'Não informado')+'</div>';
 
   const prereqList = (course.prereq && course.prereq.length) ? 
     '<ul>'+course.prereq.map(p => {
@@ -818,39 +629,28 @@ function selectCourse(id) {
   const equiv = course.equiv || '<span class="empty">Não informado.</span>';
 
   panelBodyEl.innerHTML = `
+    <div class="p-code">${course.id} · ${course.period}º Fase</div>
+    <div class="p-name">${course.name}</div>
+    <div class="p-credits">${total} créditos totais</div>
     ${credDetail}
     ${metaInfo}
-    
-    <div class="info-grid">
-      <div class="col">
-        <h3>Pré-requisitos</h3>
-        <div class="block prereq-list">${prereqList}</div>
-        
-        <h3>Correquisitos</h3>
-        <div class="block coreq-list">${coreqList}</div>
-        
-        <h3>Equivalências</h3>
-        <div class="block">${equiv}</div>
-        
-        <h3>Objetivo Geral</h3>
-        <div class="block">${course.objGeral || 'Não informado.'}</div>
-        
-        <h3>Objetivos Específicos</h3>
-        <div class="block">${objEspList}</div>
-      </div>
-      <div class="col">
-        <h3>Ementa</h3>
-        <div class="block">${course.desc || 'Não informado.'}</div>
-        
-        <h3>Bibliografia Obrigatória</h3>
-        <div class="block">${biblioObrig}</div>
-        
-        <h3>Bibliografia Complementar</h3>
-        <div class="block">${biblioComp}</div>
-      </div>
-    </div>
+    <h3>Pré-requisitos</h3>
+    <div class="block prereq-list">${prereqList}</div>
+    <h3>Correquisitos</h3>
+    <div class="block coreq-list">${coreqList}</div>
+    <h3>Ementa</h3>
+    <div class="block">${course.desc || 'Não informado.'}</div>
+    <h3>Objetivo Geral</h3>
+    <div class="block">${course.objGeral || 'Não informado.'}</div>
+    <h3>Objetivos Específicos</h3>
+    <div class="block">${objEspList}</div>
+    <h3>Bibliografia Obrigatória</h3>
+    <div class="block">${biblioObrig}</div>
+    <h3>Bibliografia Complementar</h3>
+    <div class="block">${biblioComp}</div>
+    <h3>Equivalências</h3>
+    <div class="block">${equiv}</div>
   `;
-  
   panelEl.classList.add('open');
   overlayEl.classList.add('open');
 }
